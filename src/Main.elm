@@ -4,6 +4,7 @@ import Html exposing (h1, p, text, div, node)
 import Html.Attributes exposing (style)
 import Plot exposing (..)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
+import List.Extra exposing (..)
 
 
 -- MODEL
@@ -72,6 +73,9 @@ view model =
       div [ Html.Attributes.style [("max-height","1000px"), ("max-width","1000px")]]
         [ Plot.viewBarsCustom settings
               { unstackedGroup | areBarsStacked = True }
+              barData
+              , Plot.viewBarsCustom settings
+              { unstackedGroup | areBarsStacked = False }
               barData
         ]
 

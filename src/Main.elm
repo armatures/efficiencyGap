@@ -1,6 +1,6 @@
 module Interactive exposing (..)
 
-import Html exposing (h1, p, text, div, node)
+import Html exposing (h1, p, text, div, node, input, tr,thead,tbody,td)
 import Html.Attributes exposing (style)
 import Plot exposing (..)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
@@ -31,6 +31,7 @@ initialModel =
 
 type Msg
     = Hover (Maybe Point)
+      | NewVotes (List Int)
 
 
 update : Msg -> Model -> Model
@@ -38,6 +39,8 @@ update msg model =
     case msg of
       Hover point ->
         { model | hovering = point }
+      NewVotes votes ->
+        { model | barData = votes }
 
 
 -- myDot : Maybe Point -> Point -> DataPoint msg
@@ -71,7 +74,33 @@ view model =
         [ Plot.viewBarsCustom settings
               { unstackedGroup | areBarsStacked = True }
               <| presentVotes model.barData
+        , voteControls model.barData
         ]
+
+voteControls : List Int -> Html.Html Msg
+voteControls votes =
+    let
+        tableRows = List.indexedMap (\partyNumber (goodVotes, wastedVotes) ->
+                                         tr[]
+                                          [ td[] [ text <| "Party "++ (toString partyNumber)]
+                                          , td[] [ text << toString <| (goodVotes + wastedVotes)]
+                                          , td[] [ text << toString <| goodVotes]
+                                          , td[] [ text << toString <| wastedVotes]
+                                          ]
+                                    )
+                         (calculateWastedVotes votes)
+        voteCounts =
+            Html.table []
+                [ Html.th[] [ Html.td[][text "Party Name"]]
+                , Html.th[] [Html.td[][text "Total Votes"]]
+                , Html.th[] [Html.td[][text "Good Votes"]]
+                , Html.th[] [Html.td[][text "Wasted Votes"]]
+                , Html.tbody[]
+                    tableRows
+                ]
+    in
+        voteCounts
+
 
 presentVotes : List Int -> List (List Float)
 presentVotes = calculateWastedVotes >> (List.map (\(a,b)-> [toFloat a, toFloat b]))

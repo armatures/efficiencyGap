@@ -52,10 +52,21 @@ update msg model =
 
 -- VIEW
 
+fst (item,_) = item
 
 view : Model -> Html.Html Msg
 view model =
     let
+      wastedThreshold = List.map toFloat [wastedVoteThreshold model.voteData]
+
+      vertAxis = customAxis <| \summary ->
+        { position = closestToZero
+        , axisLine = Just (simpleLine summary)
+        , ticks = List.map simpleTick (wastedThreshold)
+        , labels = List.map simpleLabel (wastedThreshold)
+        , flipAnchor = False
+        }
+
       settings =
         { defaultBarsPlotCustomizations
         | onHover = Just Hover
@@ -63,18 +74,20 @@ view model =
         , grid = {horizontal=
                       customGrid <|
                       \summary ->
-                          List.map (GridLineCustomizations [ stroke "#bbb" ]) <| List.map toFloat [wastedVoteThreshold model.voteData]
+                          List.map (GridLineCustomizations [ stroke "#bbb" ]) <| wastedThreshold
                       , vertical= clearGrid}
         , margin = { top = 20, bottom = 30, left = 40, right = 40 }
         }
 
       unstackedGroup =
-              stackedBars (List.map2 (hintGroup model.hovering) [ "g1", "g3", "g3", "g4", "g5" ])
+              stackedBars (List.map2 (hintGroup model.hovering) (List.map fst (model.voteData)))
 
     in
       div [ Html.Attributes.style [("max-height","1000px"), ("max-width","1000px")]]
         [ Plot.viewBarsCustom settings
-              { unstackedGroup | areBarsStacked = True }
+              { unstackedGroup | areBarsStacked = True
+              , axis = vertAxis
+              }
               <| presentVotes model.voteData
         , voteControls model.voteData
         ]

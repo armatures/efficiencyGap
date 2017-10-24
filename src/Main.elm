@@ -16,14 +16,14 @@ type alias Model =
     }
 
 type alias PartyVote =
-    Int
+    (String, Int)
 
 initialModel : Model
 initialModel =
     { hovering = Nothing
     , voteData =
-          [  100
-          ,  50
+          [  ("Winning Party", 100)
+          ,  ("Losing Party", 50)
           ]
     }
 
@@ -82,12 +82,12 @@ view model =
 voteControls : List PartyVote -> Html.Html Msg
 voteControls votes =
     let
-        tableRows = List.indexedMap (\partyNumber (goodVotes, wastedVotes) ->
+        tableRows = List.map (\{partyName, good, wasted} ->
                                          tr[]
-                                          [ td[] [ text <| "Party "++ (toString partyNumber)]
-                                          , td[] [ text << toString <| (goodVotes + wastedVotes)]
-                                          , td[] [ text << toString <| goodVotes]
-                                          , td[] [ text << toString <| wastedVotes]
+                                          [ td[] [ text partyName ]
+                                          , td[] [ text << toString <| (good + wasted)]
+                                          , td[] [ text << toString <| good]
+                                          , td[] [ text << toString <| wasted]
                                           ]
                                     )
                          (calculateWastedVotes votes)
@@ -105,27 +105,42 @@ voteControls votes =
 
 
 presentVotes : List PartyVote -> List (List Float)
-presentVotes = calculateWastedVotes >> (List.map (\(a,b)-> [toFloat a, toFloat b]))
+presentVotes = calculateWastedVotes >> (List.map (\{partyName,good,wasted}-> [toFloat good, toFloat wasted]))
 
 wastedVoteThreshold : List PartyVote -> Int
-wastedVoteThreshold votes = ceiling ((toFloat <| List.sum votes) / 2)
+wastedVoteThreshold votes = ceiling ((toFloat <| List.sum <| List.map snd votes) / 2)
 
-calculateWastedVotes : List PartyVote -> List((Int, Int))
+type alias PartyWastedVote =
+    { partyName : String
+    , good : Int
+    , wasted : Int
+    }
+
+calculateWastedVotes : List PartyVote -> List PartyWastedVote
 calculateWastedVotes votes =
     let loserVotes =
-            List.map ((,) 0)
-        winnerVotes v =
-            if v > wastedVoteThreshold votes then
-                 (wastedVoteThreshold votes, v-wastedVoteThreshold votes )
+            List.map (\(name,votes) -> {partyName=name,good=0,wasted=votes})
+
+        winnerVotes (partyName, partyVotes) =
+            if partyVotes > wastedVoteThreshold votes then
+                 { partyName = partyName
+                 , good = wastedVoteThreshold votes
+                 , wasted = partyVotes-wastedVoteThreshold votes
+                 }
             else
-                 (v,0)
+                 { partyName = partyName
+                 , good = partyVotes
+                 , wasted = 0
+                 }
     in
-        (List.sort >> List.reverse) votes
+        ((List.sortBy snd) >> List.reverse) votes
          |> (\votes_ -> case votes_ of
                      (v::vs) ->
                          (winnerVotes v :: loserVotes vs)
                      [] -> []
             )
+
+snd (_,item) = item
 
 main : Program Never Model Msg
 main =

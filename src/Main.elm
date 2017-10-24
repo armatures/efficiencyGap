@@ -12,14 +12,14 @@ import List.Extra exposing (..)
 
 type alias Model =
     { hovering : Maybe Point
-    , barData : List Int
+    , voteData : List Int
     }
 
 
 initialModel : Model
 initialModel =
     { hovering = Nothing
-    , barData =
+    , voteData =
           [  100
           ,  50
           ]
@@ -40,7 +40,7 @@ update msg model =
       Hover point ->
         { model | hovering = point }
       NewVotes votes ->
-        { model | barData = votes }
+        { model | voteData = votes }
 
 
 -- myDot : Maybe Point -> Point -> DataPoint msg
@@ -61,7 +61,7 @@ view model =
         , grid = {horizontal=
                       customGrid <|
                       \summary ->
-                          List.map (GridLineCustomizations [ stroke "#bbb" ]) <| List.map toFloat [wastedVoteThreshold model.barData]
+                          List.map (GridLineCustomizations [ stroke "#bbb" ]) <| List.map toFloat [wastedVoteThreshold model.voteData]
                       , vertical= clearGrid}
         , margin = { top = 20, bottom = 30, left = 40, right = 40 }
         }
@@ -73,8 +73,8 @@ view model =
       div [ Html.Attributes.style [("max-height","1000px"), ("max-width","1000px")]]
         [ Plot.viewBarsCustom settings
               { unstackedGroup | areBarsStacked = True }
-              <| presentVotes model.barData
-        , voteControls model.barData
+              <| presentVotes model.voteData
+        , voteControls model.voteData
         ]
 
 voteControls : List Int -> Html.Html Msg

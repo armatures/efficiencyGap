@@ -12,7 +12,7 @@ import List.Extra exposing (..)
 
 type alias Model =
     { hovering : Maybe Point
-    , voteData : List PartyVote
+    , voteData : List (List PartyVote)
     }
 
 type alias PartyVote =
@@ -22,8 +22,15 @@ initialModel : Model
 initialModel =
     { hovering = Nothing
     , voteData =
-          [  ("Winning Party", 100)
-          ,  ("Losing Party", 50)
+          [ [  ("Feelings Party", 100)
+            ,  ("Nature Party", 50)
+            ]
+          , [  ("Feelings Party", 100)
+            ,  ("Nature Party", 50)
+            ]
+          , [  ("Feelings Party", 100)
+            ,  ("Nature Party", 500)
+            ]
           ]
     }
 
@@ -33,7 +40,7 @@ initialModel =
 
 type Msg
     = Hover (Maybe Point)
-      | NewVotes (List PartyVote)
+      | NewVotes (List (List PartyVote))
 
 
 update : Msg -> Model -> Model
@@ -54,10 +61,10 @@ update msg model =
 
 fst (item,_) = item
 
-view : Model -> Html.Html Msg
-view model =
+viewRace : List PartyVote -> Html.Html Msg
+viewRace voteData =
     let
-      wastedThreshold = List.map toFloat [wastedVoteThreshold model.voteData]
+      wastedThreshold = List.map toFloat [wastedVoteThreshold voteData]
 
       vertAxis = customAxis <| \summary ->
         { position = closestToZero
@@ -80,16 +87,16 @@ view model =
         }
 
       unstackedGroup =
-              stackedBars (List.map2 (hintGroup model.hovering) (List.map fst (model.voteData)))
+              stackedBars (List.map2 (hintGroup Nothing) (List.map fst (voteData))) --"Nothing" isn't useful here
 
     in
-      div [ Html.Attributes.style [("max-height","1000px"), ("max-width","1000px")]]
+      div [ Html.Attributes.style [("max-height","400px"), ("max-width","400px")]]
         [ Plot.viewBarsCustom settings
               { unstackedGroup | areBarsStacked = True
               , axis = vertAxis
               }
-              <| presentVotes model.voteData
-        , voteControls model.voteData
+              <| presentVotes voteData
+        , voteControls voteData
         ]
 
 voteControls : List PartyVote -> Html.Html Msg
@@ -159,3 +166,5 @@ snd (_,item) = item
 main : Program Never Model Msg
 main =
     Html.beginnerProgram { model = initialModel, update = update, view = view }
+
+view model = Html.div [] <| List.map viewRace model.voteData

@@ -12,9 +12,11 @@ import List.Extra exposing (..)
 
 type alias Model =
     { hovering : Maybe Point
-    , voteData : List Int
+    , voteData : List PartyVote
     }
 
+type alias PartyVote =
+    Int
 
 initialModel : Model
 initialModel =
@@ -31,7 +33,7 @@ initialModel =
 
 type Msg
     = Hover (Maybe Point)
-      | NewVotes (List Int)
+      | NewVotes (List PartyVote)
 
 
 update : Msg -> Model -> Model
@@ -77,7 +79,7 @@ view model =
         , voteControls model.voteData
         ]
 
-voteControls : List Int -> Html.Html Msg
+voteControls : List PartyVote -> Html.Html Msg
 voteControls votes =
     let
         tableRows = List.indexedMap (\partyNumber (goodVotes, wastedVotes) ->
@@ -102,13 +104,13 @@ voteControls votes =
         voteCounts
 
 
-presentVotes : List Int -> List (List Float)
+presentVotes : List PartyVote -> List (List Float)
 presentVotes = calculateWastedVotes >> (List.map (\(a,b)-> [toFloat a, toFloat b]))
 
-wastedVoteThreshold : List Int -> Int
+wastedVoteThreshold : List PartyVote -> Int
 wastedVoteThreshold votes = ceiling ((toFloat <| List.sum votes) / 2)
 
-calculateWastedVotes : List Int -> List((Int, Int))
+calculateWastedVotes : List PartyVote -> List((Int, Int))
 calculateWastedVotes votes =
     let loserVotes =
             List.map ((,) 0)

@@ -140,6 +140,7 @@ calculateWastedVotes votes =
                      [] -> []
             )
 
+snd : (a,b) -> b
 snd (_,item) = item
 
 main : Program Never Model Msg

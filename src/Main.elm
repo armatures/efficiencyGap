@@ -114,18 +114,18 @@ calculateWastedVotes : List PartyVote -> List((Int, Int))
 calculateWastedVotes votes =
     let loserVotes =
             List.map ((,) 0)
+        winnerVotes v =
+            if v > wastedVoteThreshold votes then
+                 (wastedVoteThreshold votes, v-wastedVoteThreshold votes )
+            else
+                 (v,0)
     in
         (List.sort >> List.reverse) votes
-         |> (\votes_ ->
-                 case votes_ of
+         |> (\votes_ -> case votes_ of
                      (v::vs) ->
-                         if v > wastedVoteThreshold votes then
-                             (v-wastedVoteThreshold vs, wastedVoteThreshold vs)::loserVotes vs
-                         else
-                             (v,0)::loserVotes vs
+                         (winnerVotes v :: loserVotes vs)
                      [] -> []
             )
-   -- List.foldl (\v -> ( if v>wastedVoteThreshold max 0 (v-wastedVoteThreshold votes), abs (wastedVoteThreshold) ))
 
 main : Program Never Model Msg
 main =

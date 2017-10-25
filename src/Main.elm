@@ -5,7 +5,10 @@ import Html.Attributes exposing (style)
 import Plot exposing (..)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
 import List.Extra exposing (..)
+import Css exposing (maxWidth, maxHeight,display, flex, px)
 
+styles =
+    Css.asPairs >> Html.Attributes.style
 
 -- MODEL
 
@@ -90,7 +93,7 @@ viewRace voteData =
               stackedBars (List.map2 (hintGroup Nothing) (List.map fst (voteData))) --"Nothing" isn't useful here
 
     in
-      div [ Html.Attributes.style [("max-height","400px"), ("max-width","400px")]]
+      div [ styles [ maxWidth (px 400) , flex Css.auto]]
         [ Plot.viewBarsCustom settings
               { unstackedGroup | areBarsStacked = True
               , axis = vertAxis
@@ -112,14 +115,18 @@ voteControls votes =
                                     )
                          (calculateWastedVotes votes)
         voteCounts =
-            Html.table []
-                [ Html.th[] [ Html.td[][text "Party Name"]]
-                , Html.th[] [Html.td[][text "Total Votes"]]
-                , Html.th[] [Html.td[][text "Good Votes"]]
-                , Html.th[] [Html.td[][text "Wasted Votes"]]
-                , Html.tbody[]
-                    tableRows
+            Html.table [][
+                Html.thead []
+                [ Html.tr []
+                    [ Html.th[] [ text "Party Name"]
+                    , Html.th[] [text "Total Votes"]
+                    , Html.th[] [text "Good Votes"]
+                    , Html.th[] [text "Wasted Votes"]
+                    ]
                 ]
+                    , Html.tbody[]
+                    tableRows
+            ]
     in
         voteCounts
 
@@ -167,4 +174,4 @@ main : Program Never Model Msg
 main =
     Html.beginnerProgram { model = initialModel, update = update, view = view }
 
-view model = Html.div [] <| List.map viewRace model.voteData
+view model = Html.div [styles [Css.displayFlex]] <| List.map viewRace model.voteData

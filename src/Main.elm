@@ -1,4 +1,4 @@
-module Interactive exposing (..)
+module Main exposing (..)
 
 import Html exposing (h1, p, text, div, node, input, tr,thead,tbody,td)
 import Html.Attributes exposing (style)
@@ -6,6 +6,7 @@ import Plot exposing (..)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
 import List.Extra exposing (..)
 import Css exposing (maxWidth, maxHeight,display, flex, px)
+import Dict
 
 styles =
     Css.asPairs >> Html.Attributes.style
@@ -29,7 +30,7 @@ initialModel =
             ,  ("Nature Party", 50)
             ]
           , [  ("Feelings Party", 100)
-            ,  ("Nature Party", 50)
+            ,  ("Airborne Party", 50)
             ]
           , [  ("Feelings Party", 100)
             ,  ("Nature Party", 500)
@@ -174,4 +175,47 @@ main : Program Never Model Msg
 main =
     Html.beginnerProgram { model = initialModel, update = update, view = view }
 
-view model = Html.div [styles [Css.displayFlex]] <| List.map viewRace model.voteData
+view model = (List.map viewRace model.voteData) ++
+             [ Html.table[]
+                   [ thead[]
+                         [tr[]
+                              [ Html.th[][text "Parties"]
+                              , Html.th[][text "Efficiency Gaps"]
+                              ]
+                         ]
+                   , presentGaps model |> tbody []
+                   ]
+             ]
+             |> Html.div [styles [Css.displayFlex]]
+
+presentGaps model =
+       let presentRow (a,b) =
+               tr[]
+                   [ td[][text (a ++ " / " ++ b)]
+                   , td[][text "gap!"]
+                   ]
+           partiesFrom voteData =
+               voteData
+                   |> toTotalVoteMap
+                   |> Dict.keys
+
+           toTotalVoteMap voteData =
+               voteData
+                   |> List.concat
+                   |> List.foldl (\{partyName, good, wasted} acc -> Dict.insert partyName { good=good, wasted=wasted } acc ) Dict.empty
+
+       in
+             List.map calculateWastedVotes model.voteData |>
+                partiesFrom |>
+                allPairs |>
+                List.map presentRow
+
+allPairs list =
+    let allPairs_ parties acc =
+        case parties of
+            [] -> acc
+            (x::xs) ->
+                acc ++ List.map ( (,) x ) xs
+
+    in
+               List.foldl allPairs_ [] (List.Extra.tails list)

@@ -194,19 +194,14 @@ presentGaps model =
                    [ td[][text (a ++ " / " ++ b)]
                    , td[][text "gap!"]
                    ]
-           partiesFrom voteData =
-               voteData
-                   |> toTotalVoteMap
-                   |> Dict.keys
 
-           toTotalVoteMap voteData =
-               voteData
+           totalVoteMap =
+               List.map calculateWastedVotes model.voteData
                    |> List.concat
                    |> List.foldl (\{partyName, good, wasted} acc -> Dict.insert partyName { good=good, wasted=wasted } acc ) Dict.empty
 
        in
-             List.map calculateWastedVotes model.voteData |>
-                partiesFrom |>
+                Dict.keys totalVoteMap |>
                 allPairs |>
                 List.map presentRow
 

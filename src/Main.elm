@@ -7,6 +7,7 @@ import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, st
 import List.Extra exposing (..)
 import Css exposing (maxWidth, maxHeight,display, flex, px)
 import Dict
+import Round
 
 styles =
     Css.asPairs >> Html.Attributes.style
@@ -189,21 +190,44 @@ view model = (List.map viewRace model.voteData) ++
              |> Html.div [styles [Css.displayFlex]]
 
 presentGaps model =
-       let presentRow (a,b) =
+       let presentRow total ((a,aData),(b,bData)) =
                tr[]
                    [ td[][text (a ++ " / " ++ b)]
-                   , td[][text "gap!"]
+                   , td[]
+                       [ text << to2decimalPercent <| abs <| toFloat (aData.wasted - bData.wasted) / toFloat total
+                       ]
                    ]
+
+           to2decimalPercent float =
+               float * 100
+                  |> Round.round 2
+                  |> flip (++) "%"
 
            totalVoteMap =
                List.map calculateWastedVotes model.voteData
                    |> List.concat
-                   |> List.foldl (\{partyName, good, wasted} acc -> Dict.insert partyName { good=good, wasted=wasted } acc ) Dict.empty
+                   |> List.foldl updateValue Dict.empty
+
+           totalVotes =
+               model.voteData
+                   |> List.concat
+                   |> List.map snd
+                   |> List.sum
+
 
        in
-                Dict.keys totalVoteMap |>
+                Dict.toList totalVoteMap |>
                 allPairs |>
-                List.map presentRow
+                List.map (presentRow totalVotes)
+
+updateValue item dict =
+               Dict.update item.partyName (\existing ->
+       case existing of
+           Just j ->
+               Just { j | good=j.good + item.good, wasted=j.wasted + item.wasted }
+           Nothing ->
+               Just { good=item.good, wasted=item.wasted }
+                                     ) dict
 
 allPairs list =
     let allPairs_ parties acc =

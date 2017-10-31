@@ -6,6 +6,7 @@ import Plot exposing (..)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
 import List.Extra exposing (..)
 import Css exposing (width, maxWidth, minWidth, maxHeight,display, flex, px, pct)
+import Html.Events exposing (onClick)
 import Dict
 import Round
 
@@ -43,16 +44,6 @@ initialModel =
             ,  ("Party B", 47)
             ]
           ]
-          -- [ [  ("Feelings Party", 100)
-          --   ,  ("Nature Party", 50)
-          --   ]
-          -- , [  ("Feelings Party", 100)
-          --   ,  ("Airborne Party", 50)
-          --   ]
-          -- , [  ("Feelings Party", 100)
-          --   ,  ("Nature Party", 500)
-          --   ]
-          -- ]
     }
 
 
@@ -61,7 +52,7 @@ initialModel =
 
 type Msg
     = Hover (Maybe Point)
-      | NewVotes (List (List PartyVote))
+      | NewVotes Int (List PartyVote)
 
 
 update : Msg -> Model -> Model
@@ -69,21 +60,20 @@ update msg model =
     case msg of
       Hover point ->
         { model | hovering = point }
-      NewVotes votes ->
-        { model | voteData = votes }
+      NewVotes raceIndex votes ->
+        { model | voteData = updateAtIndex raceIndex votes model.voteData}
 
 
--- myDot : Maybe Point -> Point -> DataPoint msg
--- myDot hovering point =
---     hintDot (viewCircle 5 "#ff9edf") hovering point.x point.y
-
+updateAtIndex : Int -> List PartyVote -> List (List PartyVote) -> List (List PartyVote)
+updateAtIndex i newVotes model =
+    List.indexedMap (\j raceVotes -> if i==j then newVotes else raceVotes) model
 
 -- VIEW
 
 fst (item,_) = item
 
-viewRace : List PartyVote -> Html.Html Msg
-viewRace voteData =
+viewRace : Int -> List PartyVote -> Html.Html Msg
+viewRace raceIndex voteData =
     let
       wastedThreshold = List.map toFloat [wastedVoteThreshold voteData]
 
@@ -118,21 +108,36 @@ viewRace voteData =
               , axis = vertAxis
               }
               <| presentVotes voteData
-        , voteControls voteData
+        , voteControls raceIndex voteData
         ]
 
-voteControls : List PartyVote -> Html.Html Msg
-voteControls votes =
+voteControls : Int -> List PartyVote -> Html.Html Msg
+voteControls raceIndex votes =
     let
         tableRows = List.map (\{partyName, good, wasted} ->
                                          tr[]
                                           [ td[] [ text partyName ]
-                                          , td[] [ text << toString <| (good + wasted)]
+                                          , td[] [
+                                                 input [
+                                                        Html.Attributes.type_ "text"
+                                                       , Html.Attributes.placeholder (toString <| (good + wasted))
+                                                       , styles [width (pct 80)]
+                                                       -- , onInput NewSpelling
+                                                       -- , Html.Attributes.value model.currentSpelling
+                                                       ][]]
                                           , td[] [ text << toString <| good]
                                           , td[] [ text << toString <| wasted]
                                           ]
                                     )
                          (calculateWastedVotes votes)
+                             ++ [ tr[]
+                                     [ td[][]
+                                     , td[]
+                                         [ input[Html.Attributes.type_ "submit"
+                                                , onClick <| NewVotes raceIndex [("Partay",10),("Animal", 15)] ][text "update votes"]
+                                         ]
+                                     ]
+                                ]
         voteCounts =
             Html.table [][
                 Html.thead []
@@ -224,7 +229,7 @@ view model =
                   ]
              ]
     in
-        (List.map viewRace model.voteData) ++
+        (List.indexedMap viewRace model.voteData) ++
              summary
              |> Html.div [styles [Css.displayFlex, Css.flexWrap Css.wrap]]
 

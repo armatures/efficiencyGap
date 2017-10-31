@@ -6,7 +6,7 @@ import Plot exposing (..)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
 import List.Extra exposing (..)
 import Css exposing (width, maxWidth, minWidth, maxHeight,display, flex, px, pct)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Dict
 import Round
 
@@ -19,6 +19,7 @@ styles =
 type alias Model =
     { hovering : Maybe Point
     , voteData : List (List PartyVote)
+    , draftVoteData : List (List PartyVote)
     }
 
 type alias PartyVote =
@@ -26,8 +27,7 @@ type alias PartyVote =
 
 initialModel : Model
 initialModel =
-    { hovering = Nothing
-    , voteData =
+    let initVotes = 
           [ [  ("Party A", 15)
             ,  ("Party B", 85)
             ]
@@ -44,7 +44,11 @@ initialModel =
             ,  ("Party B", 47)
             ]
           ]
-    }
+    in
+        { hovering = Nothing
+        , voteData = initVotes
+        , draftVoteData = []
+        }
 
 
 -- UPDATE
@@ -53,6 +57,7 @@ initialModel =
 type Msg
     = Hover (Maybe Point)
       | NewVotes Int (List PartyVote)
+      | DraftVotes Int (String, Int)
 
 
 update : Msg -> Model -> Model
@@ -61,11 +66,24 @@ update msg model =
       Hover point ->
         { model | hovering = point }
       NewVotes raceIndex votes ->
-        { model | voteData = updateAtIndex raceIndex votes model.voteData}
+        { model | voteData = votesForRaceAtIndex raceIndex votes model.voteData}
+      DraftVotes raceIndex partyVotes ->
+        { model | draftVoteData = updatePartyInRace raceIndex partyVotes model.draftVoteData }
+
+updatePartyInRace : Int -> PartyVote -> List (List PartyVote) -> List (List PartyVote)
+updatePartyInRace raceIndex partyVote allRaces =
+    List.indexedMap (\j partyVotes ->
+                         if raceIndex == j then
+                             partyVote :: ( List.filter (\(name,_) -> name /= fst partyVote) partyVotes )
+                         else
+                             partyVotes
+                    )
+        allRaces
+        --this should be a map or array to make getting to a specific race easier
 
 
-updateAtIndex : Int -> List PartyVote -> List (List PartyVote) -> List (List PartyVote)
-updateAtIndex i newVotes model =
+votesForRaceAtIndex : Int -> List PartyVote -> List (List PartyVote) -> List (List PartyVote)
+votesForRaceAtIndex i newVotes model =
     List.indexedMap (\j raceVotes -> if i==j then newVotes else raceVotes) model
 
 -- VIEW
@@ -119,10 +137,10 @@ voteControls raceIndex votes =
                                           [ td[] [ text partyName ]
                                           , td[] [
                                                  input [
-                                                        Html.Attributes.type_ "text"
+                                                        Html.Attributes.type_ "number"
                                                        , Html.Attributes.placeholder (toString <| (good + wasted))
                                                        , styles [width (pct 80)]
-                                                       -- , onInput NewSpelling
+                                                       , onInput <| buildDraftVotes raceIndex partyName
                                                        -- , Html.Attributes.value model.currentSpelling
                                                        ][]]
                                           , td[] [ text << toString <| good]
@@ -138,6 +156,15 @@ voteControls raceIndex votes =
                                          ]
                                      ]
                                 ]
+
+        buildDraftVotes raceIndex partyName newVoteString =
+                case String.toInt newVoteString of
+                            Err _ ->
+                                DraftVotes raceIndex (partyName, 0)
+                            Ok votes ->
+                                DraftVotes raceIndex (partyName, votes)
+
+
         voteCounts =
             Html.table [][
                 Html.thead []

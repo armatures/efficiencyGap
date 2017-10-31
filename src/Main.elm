@@ -5,7 +5,7 @@ import Html.Attributes exposing (style)
 import Plot exposing (..)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
 import List.Extra exposing (..)
-import Css exposing (maxWidth, maxHeight,display, flex, px)
+import Css exposing (width, maxWidth, minWidth, maxHeight,display, flex, px, pct)
 import Dict
 import Round
 
@@ -27,16 +27,32 @@ initialModel : Model
 initialModel =
     { hovering = Nothing
     , voteData =
-          [ [  ("Feelings Party", 100)
-            ,  ("Nature Party", 50)
+          [ [  ("Party A", 15)
+            ,  ("Party B", 85)
             ]
-          , [  ("Feelings Party", 100)
-            ,  ("Airborne Party", 50)
+          , [  ("Party A", 53)
+            ,  ("Party B", 47)
             ]
-          , [  ("Feelings Party", 100)
-            ,  ("Nature Party", 500)
+          , [  ("Party A", 53)
+            ,  ("Party B", 47)
+            ]
+          , [  ("Party A", 53)
+            ,  ("Party B", 47)
+            ]
+          , [  ("Party A", 53)
+            ,  ("Party B", 47)
             ]
           ]
+          -- [ [  ("Feelings Party", 100)
+          --   ,  ("Nature Party", 50)
+          --   ]
+          -- , [  ("Feelings Party", 100)
+          --   ,  ("Airborne Party", 50)
+          --   ]
+          -- , [  ("Feelings Party", 100)
+          --   ,  ("Nature Party", 500)
+          --   ]
+          -- ]
     }
 
 
@@ -95,7 +111,8 @@ viewRace voteData =
               stackedBars (List.map2 (hintGroup Nothing) (List.map fst (voteData))) --"Nothing" isn't useful here
 
     in
-      div [ styles [ maxWidth (px 400) , flex Css.auto]]
+      div [ styles [  maxWidth (px 400), minWidth (px 200), flex Css.auto
+                   ]]
         [ Plot.viewBarsCustom settings
               { unstackedGroup | areBarsStacked = True
               , axis = vertAxis
@@ -147,27 +164,42 @@ type alias PartyWastedVote =
 
 calculateWastedVotes : List PartyVote -> List PartyWastedVote
 calculateWastedVotes votes =
-    let loserVotes =
-            List.map (\(name,votes) -> {partyName=name,good=0,wasted=votes})
+    let loserVotes (name,votes) = {partyName=name,good=0,wasted=votes}
 
-        winnerVotes (partyName, partyVotes) =
+        winnerVotes (name, partyVotes) =
             if partyVotes > wastedVoteThreshold votes then
-                 { partyName = partyName
+                 { partyName = name
                  , good = wastedVoteThreshold votes
                  , wasted = partyVotes-wastedVoteThreshold votes
                  }
             else
-                 { partyName = partyName
+                 { partyName = name
                  , good = partyVotes
                  , wasted = 0
                  }
     in
-        ((List.sortBy snd) >> List.reverse) votes
-         |> (\votes_ -> case votes_ of
-                     (v::vs) ->
-                         (winnerVotes v :: loserVotes vs)
-                     [] -> []
-            )
+         applyToWinner winnerVotes loserVotes votes
+
+applyToWinner : ((String, Int) -> b) -> ((String, Int) -> b) -> List (String, Int) -> List b
+applyToWinner winf losef xs =
+    let
+        winner xs =
+            List.foldl (\(itemName, itemVal) (accName, accVal) ->
+                            if itemVal > accVal then
+                                (itemName, itemVal)
+                            else
+                                (accName, accVal)
+                       )
+                ("",0)
+                    xs
+    in
+    List.map
+        (\(name,vs)-> if name == fst (winner xs) then
+                          winf (name,vs)
+                      else
+                          losef (name,vs)
+        )
+        xs
 
 snd : (a,b) -> b
 snd (_,item) = item
@@ -176,27 +208,38 @@ main : Program Never Model Msg
 main =
     Html.beginnerProgram { model = initialModel, update = update, view = view }
 
-view model = (List.map viewRace model.voteData) ++
-             [ Html.table[]
-                   [ thead[]
-                         [tr[]
-                              [ Html.th[][text "Parties"]
-                              , Html.th[][text "Efficiency Gaps"]
-                              ]
-                         ]
-                   , presentGaps model |> tbody []
-                   ]
+view model =
+    let summary =
+            [ div[]
+                  [ Html.h3 [styles [display Css.block]][text "Summary"]
+                  , Html.table [styles [display Css.block]]
+                      [ thead[]
+                            [tr[]
+                                 [ Html.th[][text "Parties"]
+                                 , Html.th[][text "Efficiency Gaps"]
+                                 ]
+                            ]
+                      , presentGaps model |> tbody []
+                      ]
+                  ]
              ]
-             |> Html.div [styles [Css.displayFlex]]
+    in
+        (List.map viewRace model.voteData) ++
+             summary
+             |> Html.div [styles [Css.displayFlex, Css.flexWrap Css.wrap]]
 
 presentGaps model =
        let presentRow total ((a,aData),(b,bData)) =
-               tr[]
-                   [ td[][text (a ++ " / " ++ b)]
-                   , td[]
-                       [ text << to2decimalPercent <| abs <| toFloat (aData.wasted - bData.wasted) / toFloat total
+               if aData.wasted > bData.wasted then
+                   presentRow total ((b,bData),(a,aData))
+               else
+                   tr[]
+                       [ td[][text (a ++ " / " ++ b)]
+                       , td[]
+                           [ div[][text <| "(" ++ toString aData.wasted ++ "-" ++ toString bData.wasted ++ ")/" ++ toString total ++ " = "]
+                           , div[][text << to2decimalPercent <| abs <| toFloat (aData.wasted - bData.wasted) / toFloat total]
+                           ]
                        ]
-                   ]
 
            to2decimalPercent float =
                float * 100

@@ -9,6 +9,7 @@ import Css exposing (width, maxWidth, minWidth, maxHeight,display, flex, px, pct
 import Html.Events exposing (onClick, onInput)
 import Dict
 import Round
+import Array
 
 styles =
     Css.asPairs >> Html.Attributes.style
@@ -18,8 +19,8 @@ styles =
 
 type alias Model =
     { hovering : Maybe Point
-    , voteData : List (List PartyVote)
-    , draftVoteData : List (List PartyVote)
+    , voteData : Array.Array (List PartyVote)
+    , draftVoteData : Array.Array (List PartyVote)
     }
 
 type alias PartyVote =
@@ -27,8 +28,8 @@ type alias PartyVote =
 
 initialModel : Model
 initialModel =
-    let initVotes = 
-          [ [  ("Party A", 15)
+    let initVotes =
+          Array.fromList [ [  ("Party A", 15)
             ,  ("Party B", 85)
             ]
           , [  ("Party A", 53)
@@ -47,7 +48,7 @@ initialModel =
     in
         { hovering = Nothing
         , voteData = initVotes
-        , draftVoteData = []
+        , draftVoteData = Array.fromList []
         }
 
 
@@ -70,28 +71,23 @@ update msg model =
       DraftVotes raceIndex partyVotes ->
         { model | draftVoteData = updatePartyInRace raceIndex partyVotes model.draftVoteData }
 
-updatePartyInRace : Int -> PartyVote -> List (List PartyVote) -> List (List PartyVote)
+updatePartyInRace : Int -> PartyVote -> Array.Array (List PartyVote) -> Array.Array (List PartyVote)
 updatePartyInRace raceIndex partyVote allRaces =
-    List.indexedMap (\j partyVotes ->
-                         if raceIndex == j then
-                             partyVote :: ( List.filter (\(name,_) -> name /= fst partyVote) partyVotes )
-                         else
-                             partyVotes
-                    )
-        allRaces
-        --this should be a map or array to make getting to a specific race easier
+    case Array.get raceIndex allRaces of
+        Nothing -> allRaces
+        Just raceVotes -> Array.set raceIndex (partyVote :: ( List.filter (\(name,_) -> name /= fst partyVote) raceVotes )) allRaces 
 
 
-votesForRaceAtIndex : Int -> List PartyVote -> List (List PartyVote) -> List (List PartyVote)
+votesForRaceAtIndex : Int -> List PartyVote -> Array.Array (List PartyVote) -> Array.Array (List PartyVote)
 votesForRaceAtIndex i newVotes model =
-    List.indexedMap (\j raceVotes -> if i==j then newVotes else raceVotes) model
+    Array.set i newVotes model
 
 -- VIEW
 
 fst (item,_) = item
 
-viewRace : Int -> List PartyVote -> Html.Html Msg
-viewRace raceIndex voteData =
+viewRace : (Int, List PartyVote) -> Html.Html Msg
+viewRace (raceIndex, voteData) =
     let
       wastedThreshold = List.map toFloat [wastedVoteThreshold voteData]
 
@@ -240,6 +236,7 @@ main : Program Never Model Msg
 main =
     Html.beginnerProgram { model = initialModel, update = update, view = view }
 
+view : Model -> Html.Html Msg
 view model =
     let summary =
             [ div[]
@@ -256,10 +253,11 @@ view model =
                   ]
              ]
     in
-        (List.indexedMap viewRace model.voteData) ++
+        (List.map viewRace <| Array.toIndexedList model.voteData) ++
              summary
              |> Html.div [styles [Css.displayFlex, Css.flexWrap Css.wrap]]
 
+presentGaps : Model -> List (Html.Html Msg)
 presentGaps model =
        let presentRow total ((a,aData),(b,bData)) =
                if aData.wasted > bData.wasted then
@@ -279,12 +277,15 @@ presentGaps model =
                   |> flip (++) "%"
 
            totalVoteMap =
-               List.map calculateWastedVotes model.voteData
+               model.voteData
+                   |> Array.toList
+                   |> List.map calculateWastedVotes
                    |> List.concat
                    |> List.foldl updateValue Dict.empty
 
            totalVotes =
                model.voteData
+                   |> Array.toList
                    |> List.concat
                    |> List.map snd
                    |> List.sum

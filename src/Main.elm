@@ -48,7 +48,7 @@ initialModel =
     in
         { hovering = Nothing
         , voteData = initVotes
-        , draftVoteData = Array.fromList []
+        , draftVoteData = initVotes
         }
 
 
@@ -57,7 +57,7 @@ initialModel =
 
 type Msg
     = Hover (Maybe Point)
-      | NewVotes Int (List PartyVote)
+      | NewVotes Int
       | DraftVotes Int (String, Int)
 
 
@@ -66,8 +66,8 @@ update msg model =
     case msg of
       Hover point ->
         { model | hovering = point }
-      NewVotes raceIndex votes ->
-        { model | voteData = votesForRaceAtIndex raceIndex votes model.voteData}
+      NewVotes raceIndex ->
+        { model | voteData = updateEditedParties raceIndex model}
       DraftVotes raceIndex partyVotes ->
         { model | draftVoteData = updatePartyInRace raceIndex partyVotes model.draftVoteData }
 
@@ -75,12 +75,20 @@ updatePartyInRace : Int -> PartyVote -> Array.Array (List PartyVote) -> Array.Ar
 updatePartyInRace raceIndex partyVote allRaces =
     case Array.get raceIndex allRaces of
         Nothing -> allRaces
-        Just raceVotes -> Array.set raceIndex (partyVote :: ( List.filter (\(name,_) -> name /= fst partyVote) raceVotes )) allRaces 
+        Just raceVotes -> Array.set raceIndex (partyVote :: ( List.filter (\(name,_) -> name /= fst partyVote) raceVotes )) allRaces
 
 
-votesForRaceAtIndex : Int -> List PartyVote -> Array.Array (List PartyVote) -> Array.Array (List PartyVote)
-votesForRaceAtIndex i newVotes model =
-    Array.set i newVotes model
+updateEditedParties : Int -> Model -> Array.Array (List PartyVote)
+updateEditedParties i model =
+    let setToDraftData race maybeDraftData =
+            case maybeDraftData of
+                Nothing -> race
+                Just data -> data
+    in
+        case Array.get i model.voteData of
+                Nothing -> model.voteData
+                Just race -> Array.set i (setToDraftData race (Array.get i model.draftVoteData)) model.voteData
+
 
 -- VIEW
 
@@ -137,7 +145,6 @@ voteControls raceIndex votes =
                                                        , Html.Attributes.placeholder (toString <| (good + wasted))
                                                        , styles [width (pct 80)]
                                                        , onInput <| buildDraftVotes raceIndex partyName
-                                                       -- , Html.Attributes.value model.currentSpelling
                                                        ][]]
                                           , td[] [ text << toString <| good]
                                           , td[] [ text << toString <| wasted]
@@ -148,7 +155,7 @@ voteControls raceIndex votes =
                                      [ td[][]
                                      , td[]
                                          [ input[Html.Attributes.type_ "submit"
-                                                , onClick <| NewVotes raceIndex [("Partay",10),("Animal", 15)] ][text "update votes"]
+                                                , onClick <| NewVotes raceIndex ][text "update votes"]
                                          ]
                                      ]
                                 ]

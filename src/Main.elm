@@ -10,6 +10,7 @@ import Html.Events exposing (onClick, onInput)
 import Dict
 import Round
 import Array
+import Race exposing (Race, fromList, setPartyVotes, goodPartyVotes, wastedPartyVotes, totalVotes, wastedVoteThreshold, calculateWastedVotes, partyNames)
 
 styles =
     Css.asPairs >> Html.Attributes.style
@@ -19,7 +20,7 @@ styles =
 
 type alias Model =
     { hovering : Maybe Point
-    , voteData : Array.Array (List PartyVote)
+    , voteData : Array.Array Race
     , draftVoteData : Array.Array (List PartyVote)
     }
 
@@ -29,26 +30,23 @@ type alias PartyVote =
 initialModel : Model
 initialModel =
     let initVotes =
-          Array.fromList [ [  ("Party A", 15)
-            ,  ("Party B", 85)
-            ]
-          , [  ("Party A", 53)
-            ,  ("Party B", 47)
-            ]
-          , [  ("Party A", 53)
-            ,  ("Party B", 47)
-            ]
-          , [  ("Party A", 53)
-            ,  ("Party B", 47)
-            ]
-          , [  ("Party A", 53)
-            ,  ("Party B", 47)
-            ]
-          ]
+          Array.fromList
+              [ Race.fromList [  ("Party A", 15) ,  ("Party B", 85)]
+              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47)]
+              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47)]
+              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47)]
+              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47)]
+              ]
     in
         { hovering = Nothing
         , voteData = initVotes
-        , draftVoteData = initVotes
+        , draftVoteData =
+            Array.fromList [ [  ("Party A", 15) ,  ("Party B", 85)]
+                           , [  ("Party A", 53) ,  ("Party B", 47)]
+                           , [  ("Party A", 53) ,  ("Party B", 47)]
+                           , [  ("Party A", 53) ,  ("Party B", 47)]
+                           , [  ("Party A", 53) ,  ("Party B", 47)]
+                           ]
         }
 
 
@@ -78,12 +76,12 @@ updatePartyInRace raceIndex partyVote allRaces =
         Just raceVotes -> Array.set raceIndex (partyVote :: ( List.filter (\(name,_) -> name /= fst partyVote) raceVotes )) allRaces
 
 
-updateEditedParties : Int -> Model -> Array.Array (List PartyVote)
+updateEditedParties : Int -> Model -> Array.Array Race
 updateEditedParties i model =
     let setToDraftData race maybeDraftData =
             case maybeDraftData of
                 Nothing -> race
-                Just data -> data
+                Just data -> fromList data
     in
         case Array.get i model.voteData of
                 Nothing -> model.voteData
@@ -94,7 +92,7 @@ updateEditedParties i model =
 
 fst (item,_) = item
 
-viewRace : (Int, List PartyVote) -> Html.Html Msg
+viewRace : (Int, Race) -> Html.Html Msg
 viewRace (raceIndex, voteData) =
     let
       wastedThreshold = List.map toFloat [wastedVoteThreshold voteData]
@@ -120,7 +118,7 @@ viewRace (raceIndex, voteData) =
         }
 
       unstackedGroup =
-              stackedBars (List.map2 (hintGroup Nothing) (List.map fst (voteData))) --"Nothing" isn't useful here
+              stackedBars (List.map2 (hintGroup Nothing) (partyNames (voteData))) --"Nothing" isn't useful here
 
     in
       div [ styles [  maxWidth (px 400), minWidth (px 200), flex Css.auto
@@ -133,7 +131,7 @@ viewRace (raceIndex, voteData) =
         , voteControls raceIndex voteData
         ]
 
-voteControls : Int -> List PartyVote -> Html.Html Msg
+voteControls : Int -> Race -> Html.Html Msg
 voteControls raceIndex votes =
     let
         tableRows = List.map (\{partyName, good, wasted} ->
@@ -186,56 +184,14 @@ voteControls raceIndex votes =
         Html.form [ Html.Events.onSubmit <| NewVotes raceIndex ] [voteCounts]
 
 
-presentVotes : List PartyVote -> List (List Float)
+presentVotes : Race -> List (List Float)
 presentVotes = calculateWastedVotes >> (List.map (\{partyName,good,wasted}-> [toFloat good, toFloat wasted]))
-
-wastedVoteThreshold : List PartyVote -> Int
-wastedVoteThreshold votes = ceiling ((toFloat <| List.sum <| List.map snd votes) / 2)
 
 type alias PartyWastedVote =
     { partyName : String
     , good : Int
     , wasted : Int
     }
-
-calculateWastedVotes : List PartyVote -> List PartyWastedVote
-calculateWastedVotes votes =
-    let loserVotes (name,votes) = {partyName=name,good=0,wasted=votes}
-
-        winnerVotes (name, partyVotes) =
-            if partyVotes > wastedVoteThreshold votes then
-                 { partyName = name
-                 , good = wastedVoteThreshold votes
-                 , wasted = partyVotes-wastedVoteThreshold votes
-                 }
-            else
-                 { partyName = name
-                 , good = partyVotes
-                 , wasted = 0
-                 }
-    in
-         applyToWinner winnerVotes loserVotes votes
-
-applyToWinner : ((String, Int) -> b) -> ((String, Int) -> b) -> List (String, Int) -> List b
-applyToWinner winf losef xs =
-    let
-        winner xs =
-            List.foldl (\(itemName, itemVal) (accName, accVal) ->
-                            if itemVal > accVal then
-                                (itemName, itemVal)
-                            else
-                                (accName, accVal)
-                       )
-                ("",0)
-                    xs
-    in
-    List.map
-        (\(name,vs)-> if name == fst (winner xs) then
-                          winf (name,vs)
-                      else
-                          losef (name,vs)
-        )
-        xs
 
 snd : (a,b) -> b
 snd (_,item) = item
@@ -292,10 +248,9 @@ presentGaps model =
                    |> List.foldl updateValue Dict.empty
 
            totalVotes =
-               model.voteData
-                   |> Array.toList
-                   |> List.concat
-                   |> List.map snd
+               totalVoteMap
+                   |> Dict.values
+                   |> List.map (\{good,wasted} -> good + wasted)
                    |> List.sum
 
 

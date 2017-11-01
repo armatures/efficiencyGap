@@ -155,7 +155,8 @@ voteControls raceIndex votes =
                                      [ td[][]
                                      , td[]
                                          [ input[Html.Attributes.type_ "submit"
-                                                , onClick <| NewVotes raceIndex ][text "update votes"]
+                                                , Html.Attributes.value "update votes"
+                                                ][]
                                          ]
                                      ]
                                 ]
@@ -182,7 +183,7 @@ voteControls raceIndex votes =
                     tableRows
             ]
     in
-        voteCounts
+        Html.form [ Html.Events.onSubmit <| NewVotes raceIndex ] [voteCounts]
 
 
 presentVotes : List PartyVote -> List (List Float)

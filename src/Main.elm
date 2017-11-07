@@ -93,9 +93,9 @@ updateEditedParties i model =
 fst (item,_) = item
 
 viewRace : (Int, Race) -> Html.Html Msg
-viewRace (raceIndex, voteData) =
+viewRace (raceIndex, race) =
     let
-      wastedThreshold = List.map toFloat [wastedVoteThreshold voteData]
+      wastedThreshold = List.map toFloat [wastedVoteThreshold race]
 
       vertAxis = customAxis <| \summary ->
         { position = closestToZero
@@ -118,7 +118,7 @@ viewRace (raceIndex, voteData) =
         }
 
       unstackedGroup =
-              stackedBars (List.map2 (hintGroup Nothing) (partyNames (voteData))) --"Nothing" isn't useful here
+              stackedBars (List.map2 (hintGroup Nothing) (partyNames (race))) --"Nothing" isn't useful here
 
     in
       div [ styles [  maxWidth (px 400), minWidth (px 200), flex Css.auto
@@ -127,8 +127,8 @@ viewRace (raceIndex, voteData) =
               { unstackedGroup | areBarsStacked = True
               , axis = vertAxis
               }
-              <| presentVotes voteData
-        , voteControls raceIndex voteData
+              <| presentVotes race
+        , voteControls raceIndex race
         ]
 
 voteControls : Int -> Race -> Html.Html Msg

@@ -5,7 +5,7 @@ import Html.Attributes exposing (style)
 import Plot exposing (..)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
 import List.Extra exposing (..)
-import Css exposing (width, maxWidth, minWidth, maxHeight,display, flex, px, pct)
+import Css exposing (width, maxWidth, minWidth, maxHeight,display, flex, em, px, pct)
 import Html.Events exposing (onClick, onInput)
 import Dict
 import Round
@@ -221,6 +221,14 @@ view model =
              summary
              |> Html.div [styles [Css.displayFlex, Css.flexWrap Css.wrap]]
 
+textCentered = Css.textAlign Css.center
+
+showFraction numerator denominator = Html.span[styles[Css.padding (em 0.3)]]
+               [ div[styles[textCentered, Css.borderBottom2 (px 2) Css.solid, Css.borderBottomColor (Css.rgb 0 0 0) ]
+                    ][numerator]
+               , div[styles[textCentered]][denominator ]
+               ]
+
 presentGaps : Model -> List (Html.Html Msg)
 presentGaps model =
        let presentRow total ((a,aData),(b,bData)) =
@@ -229,9 +237,16 @@ presentGaps model =
                else
                    tr[]
                        [ td[][text (a ++ " / " ++ b)]
-                       , td[]
-                           [ div[][text <| "(" ++ toString aData.wasted ++ "-" ++ toString bData.wasted ++ ")/" ++ toString total ++ " = "]
-                           , div[][text << to2decimalPercent <| abs <| toFloat (aData.wasted - bData.wasted) / toFloat total]
+                       , td[styles [Css.displayFlex, Css.flexDirection Css.row, Css.alignItems Css.center]]
+                           [ showFraction
+                                 (text <| "wastedB - wastedA")
+                                 (text <| "total")
+                           , Html.span[][text " = "]
+                           , showFraction
+                                 (text <| "(" ++ toString bData.wasted ++ "-" ++ toString aData.wasted ++ ")")
+                                 (text <| toString total)
+                           , Html.span[][text " = "]
+                           , Html.span[][text << to2decimalPercent <| toFloat (bData.wasted - aData.wasted) / toFloat total]
                            ]
                        ]
 

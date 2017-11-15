@@ -54,6 +54,7 @@ wastedVoteThreshold race =
 
 partyNames : Race -> List String
 partyNames (Race parties) = List.map Tuple.first parties
+                            |> List.sort
 
 type alias PartyWastedVote =
     { partyName : String

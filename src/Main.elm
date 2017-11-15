@@ -32,11 +32,11 @@ initialModel : Model
 initialModel =
     let initVotes =
           Array.fromList
-              [ Race.fromList [  ("Party A", 15) ,  ("Party B", 85)]
-              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47)]
-              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47)]
-              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47)]
-              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47)]
+              [ Race.fromList [  ("Party A", 15) ,  ("Party B", 85),  ("Party C", 8)]
+              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47),  ("Party C", 4)]
+              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47),  ("Party C", 4)]
+              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47),  ("Party C", 4)]
+              , Race.fromList [  ("Party A", 53) ,  ("Party B", 47),  ("Party C", 4)]
               ]
     in
         { hovering = Nothing

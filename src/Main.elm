@@ -11,6 +11,7 @@ import Dict
 import Round
 import Array
 import Race exposing (Race, fromList, setPartyVotes, goodPartyVotes, wastedPartyVotes, totalVotes, wastedVoteThreshold, calculateWastedVotes, partyNames)
+import Tuple
 
 styles =
     Css.asPairs >> Html.Attributes.style
@@ -73,7 +74,7 @@ updatePartyInRace : Int -> PartyVote -> Array.Array (List PartyVote) -> Array.Ar
 updatePartyInRace raceIndex partyVote allRaces =
     case Array.get raceIndex allRaces of
         Nothing -> allRaces
-        Just raceVotes -> Array.set raceIndex (partyVote :: ( List.filter (\(name,_) -> name /= fst partyVote) raceVotes )) allRaces
+        Just raceVotes -> Array.set raceIndex (partyVote :: ( List.filter (\(name,_) -> name /= Tuple.first partyVote) raceVotes )) allRaces
 
 
 updateEditedParties : Int -> Model -> Array.Array Race
@@ -89,8 +90,6 @@ updateEditedParties i model =
 
 
 -- VIEW
-
-fst (item,_) = item
 
 viewRace : (Int, Race) -> Html.Html Msg
 viewRace (raceIndex, race) =
@@ -192,9 +191,6 @@ type alias PartyWastedVote =
     , good : Int
     , wasted : Int
     }
-
-snd : (a,b) -> b
-snd (_,item) = item
 
 main : Program Never Model Msg
 main =

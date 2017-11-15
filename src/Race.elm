@@ -9,6 +9,8 @@ module Race exposing
     , calculateWastedVotes
     , partyNames)
 
+import Tuple
+
 type Race = Race (List (String, Int))
 
 fromList : (List (String, Int)) -> Race
@@ -42,7 +44,7 @@ partyByName partyName race =
 
 
 totalVotes : Race -> Int
-totalVotes (Race race) = List.map snd race
+totalVotes (Race race) = List.map Tuple.second race
                        |> List.sum
 
 wastedVoteThreshold : Race -> Int
@@ -52,10 +54,7 @@ wastedVoteThreshold race =
         |> (+) 1
 
 partyNames : Race -> List String
-partyNames (Race parties) = List.map fst parties
-
-fst (item,_) = item
-snd (_,item) = item
+partyNames (Race parties) = List.map Tuple.first parties
 
 type alias PartyWastedVote =
     { partyName : String
@@ -98,7 +97,7 @@ applyToWinner winf losef xs =
                     xs
     in
     List.map
-        (\(name,vs)-> if name == fst (winner xs) then
+        (\(name,vs)-> if name == Tuple.first (winner xs) then
                           winf (name,vs)
                       else
                           losef (name,vs)

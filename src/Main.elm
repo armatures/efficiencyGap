@@ -132,23 +132,23 @@ viewRace (raceIndex, race) =
         ]
 
 voteControls : Int -> Race -> Html.Html Msg
-voteControls raceIndex votes =
+voteControls raceIndex race =
     let
-        tableRows = List.map (\{partyName, good, wasted} ->
+        tableRows = List.map (\partyName ->
                                          tr[]
                                           [ td[] [ text partyName ]
                                           , td[] [
                                                  input [
                                                         Html.Attributes.type_ "number"
-                                                       , Html.Attributes.placeholder (toString <| (good + wasted))
+                                                       , Html.Attributes.placeholder (toString <| (goodPartyVotes partyName race + wastedPartyVotes partyName race))
                                                        , styles [width (pct 80)]
                                                        , onInput <| buildDraftVotes raceIndex partyName
                                                        ][]]
-                                          , td[] [ text << toString <| good]
-                                          , td[] [ text << toString <| wasted]
+                                          , td[] [ text << toString <| goodPartyVotes partyName race]
+                                          , td[] [ text << toString <| wastedPartyVotes partyName race]
                                           ]
                                     )
-                         (calculateWastedVotes votes)
+                         (partyNames race)
                              ++ [ tr[]
                                      [ td[][]
                                      , td[]

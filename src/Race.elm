@@ -23,10 +23,23 @@ setPartyVotes partyName votes (Race race) =
              ) race
 
 goodPartyVotes : String -> Race -> Int
-goodPartyVotes partyName race = 0
+goodPartyVotes partyName race = case partyByName partyName race of
+                                    Nothing -> 0
+                                    Just party -> party.good
 
 wastedPartyVotes : String -> Race -> Int
-wastedPartyVotes partyName race = 0
+wastedPartyVotes partyName race = case partyByName partyName race of
+                                    Nothing -> 0
+                                    Just party -> party.wasted
+
+partyByName : String -> Race -> Maybe PartyWastedVote
+partyByName partyName race =
+    calculateWastedVotes race
+    |> List.filterMap (\party -> if party.partyName == partyName then
+                                 Just party
+                                 else Nothing)
+    |> List.head
+
 
 totalVotes : Race -> Int
 totalVotes (Race race) = List.map snd race

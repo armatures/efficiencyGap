@@ -42,11 +42,11 @@ initialModel =
         { hovering = Nothing
         , voteData = initVotes
         , draftVoteData =
-            Array.fromList [ [  ("Party A", 15) ,  ("Party B", 85)]
-                           , [  ("Party A", 53) ,  ("Party B", 47)]
-                           , [  ("Party A", 53) ,  ("Party B", 47)]
-                           , [  ("Party A", 53) ,  ("Party B", 47)]
-                           , [  ("Party A", 53) ,  ("Party B", 47)]
+            Array.fromList [ [  ("Party A", 15) ,  ("Party B", 85),  ("Party C", 8)]
+                           , [  ("Party A", 53) ,  ("Party B", 47),  ("Party C", 4)]
+                           , [  ("Party A", 53) ,  ("Party B", 47),  ("Party C", 4)]
+                           , [  ("Party A", 53) ,  ("Party B", 47),  ("Party C", 4)]
+                           , [  ("Party A", 53) ,  ("Party B", 47),  ("Party C", 4)]
                            ]
         }
 

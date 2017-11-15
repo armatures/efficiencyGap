@@ -235,7 +235,7 @@ presentGaps model =
                        [ td[][text (a ++ " / " ++ b)]
                        , td[styles [Css.displayFlex, Css.flexDirection Css.row, Css.alignItems Css.center]]
                            [ showFraction
-                                 (text <| "wastedB - wastedA")
+                                 (text <| "(wasted " ++ a ++ ") - (wasted " ++ b ++ ")")
                                  (text <| "total")
                            , Html.span[][text " = "]
                            , showFraction

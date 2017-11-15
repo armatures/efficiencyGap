@@ -10,7 +10,7 @@ import Html.Events exposing (onClick, onInput)
 import Dict
 import Round
 import Array
-import Race exposing (Race, fromList, setPartyVotes, goodPartyVotes, wastedPartyVotes, totalVotes, wastedVoteThreshold, calculateWastedVotes, partyNames)
+import Race exposing (Race, fromList, setPartyVotes, goodPartyVotes, wastedPartyVotes, totalVotes, wastedVoteThreshold, partyNames)
 import Tuple
 
 styles =
@@ -251,34 +251,46 @@ presentGaps model =
                   |> Round.round 2
                   |> flip (++) "%"
 
-           totalVoteMap =
+           allPartyNames =
                model.voteData
                    |> Array.toList
-                   |> List.map calculateWastedVotes
+                   |> List.map partyNames
                    |> List.concat
-                   |> List.foldl updateValue Dict.empty
+                   |> List.Extra.unique
 
-           totalVotes =
-               totalVoteMap
-                   |> Dict.values
-                   |> List.map (\{good,wasted} -> good + wasted)
+           partyTotalsAllRaces =
+               model.voteData
+                   |> Array.toList
+                   |> List.foldl sumRaces Dict.empty
+                   |> Dict.toList
+
+           totalVotesAllRaces =
+               model.voteData
+                   |> Array.toList
+                   |> List.map totalVotes
                    |> List.sum
 
 
        in
-                Dict.toList totalVoteMap |>
+                partyTotalsAllRaces |>
                 allPairs |>
-                List.map (presentRow totalVotes)
+                List.map (presentRow totalVotesAllRaces)
 
-updateValue item dict =
-               Dict.update item.partyName (\existing ->
-       case existing of
-           Just j ->
-               Just { j | good=j.good + item.good, wasted=j.wasted + item.wasted }
-           Nothing ->
-               Just { good=item.good, wasted=item.wasted }
-                                     ) dict
+sumRaces : Race -> Dict.Dict String {good:Int,wasted:Int} -> Dict.Dict String {good:Int,wasted:Int}
+sumRaces race dictionary =
+    partyNames race
+        |> List.foldl (updateParty race) dictionary
 
+updateParty : Race ->  String -> Dict.Dict String {good:Int,wasted:Int} -> Dict.Dict String {good:Int,wasted:Int}
+updateParty race name dict = Dict.update name (\existing ->
+            case existing of
+                Just j ->
+            Just { j | good=j.good + goodPartyVotes name race, wasted=j.wasted + wastedPartyVotes name race }
+                Nothing ->
+            Just { good=goodPartyVotes name race, wasted=wastedPartyVotes name race }
+                                           ) dict
+
+allPairs : List a -> List (a,a)
 allPairs list =
     let allPairs_ parties acc =
         case parties of

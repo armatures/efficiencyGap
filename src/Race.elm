@@ -6,7 +6,6 @@ module Race exposing
     , totalVotes
     , wastedVoteThreshold
     , fromList
-    , calculateWastedVotes
     , partyNames)
 
 import Tuple

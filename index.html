@@ -18365,53 +18365,46 @@ var _rtfeldman$elm_css$Css$IntentionallyUnsupportedPleaseSeeDocs = {ctor: 'Inten
 var _rtfeldman$elm_css$Css$thin = _rtfeldman$elm_css$Css$IntentionallyUnsupportedPleaseSeeDocs;
 var _rtfeldman$elm_css$Css$thick = _rtfeldman$elm_css$Css$IntentionallyUnsupportedPleaseSeeDocs;
 var _rtfeldman$elm_css$Css$blink = _rtfeldman$elm_css$Css$IntentionallyUnsupportedPleaseSeeDocs;
-var _charliebevis$efficiencygap$Race$snd = function (_p0) {
-	var _p1 = _p0;
-	return _p1._1;
-};
-var _charliebevis$efficiencygap$Race$fst = function (_p2) {
-	var _p3 = _p2;
-	return _p3._0;
-};
 var _charliebevis$efficiencygap$Race$applyToWinner = F3(
 	function (winf, losef, xs) {
 		var winner = function (xs) {
 			return A3(
 				_elm_lang$core$List$foldl,
 				F2(
-					function (_p5, _p4) {
-						var _p6 = _p5;
-						var _p9 = _p6._1;
-						var _p7 = _p4;
-						var _p8 = _p7._1;
-						return (_elm_lang$core$Native_Utils.cmp(_p9, _p8) > 0) ? {ctor: '_Tuple2', _0: _p6._0, _1: _p9} : {ctor: '_Tuple2', _0: _p7._0, _1: _p8};
+					function (_p1, _p0) {
+						var _p2 = _p1;
+						var _p5 = _p2._1;
+						var _p3 = _p0;
+						var _p4 = _p3._1;
+						return (_elm_lang$core$Native_Utils.cmp(_p5, _p4) > 0) ? {ctor: '_Tuple2', _0: _p2._0, _1: _p5} : {ctor: '_Tuple2', _0: _p3._0, _1: _p4};
 					}),
 				{ctor: '_Tuple2', _0: '', _1: 0},
 				xs);
 		};
 		return A2(
 			_elm_lang$core$List$map,
-			function (_p10) {
-				var _p11 = _p10;
-				var _p13 = _p11._1;
-				var _p12 = _p11._0;
+			function (_p6) {
+				var _p7 = _p6;
+				var _p9 = _p7._1;
+				var _p8 = _p7._0;
 				return _elm_lang$core$Native_Utils.eq(
-					_p12,
-					_charliebevis$efficiencygap$Race$fst(
+					_p8,
+					_elm_lang$core$Tuple$first(
 						winner(xs))) ? winf(
-					{ctor: '_Tuple2', _0: _p12, _1: _p13}) : losef(
-					{ctor: '_Tuple2', _0: _p12, _1: _p13});
+					{ctor: '_Tuple2', _0: _p8, _1: _p9}) : losef(
+					{ctor: '_Tuple2', _0: _p8, _1: _p9});
 			},
 			xs);
 	});
-var _charliebevis$efficiencygap$Race$partyNames = function (_p14) {
-	var _p15 = _p14;
-	return A2(_elm_lang$core$List$map, _charliebevis$efficiencygap$Race$fst, _p15._0);
+var _charliebevis$efficiencygap$Race$partyNames = function (_p10) {
+	var _p11 = _p10;
+	return _elm_lang$core$List$sort(
+		A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$first, _p11._0));
 };
-var _charliebevis$efficiencygap$Race$totalVotes = function (_p16) {
-	var _p17 = _p16;
+var _charliebevis$efficiencygap$Race$totalVotes = function (_p12) {
+	var _p13 = _p12;
 	return _elm_lang$core$List$sum(
-		A2(_elm_lang$core$List$map, _charliebevis$efficiencygap$Race$snd, _p17._0));
+		A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$second, _p13._0));
 };
 var _charliebevis$efficiencygap$Race$wastedVoteThreshold = function (race) {
 	return A2(
@@ -18429,14 +18422,6 @@ var _charliebevis$efficiencygap$Race$wastedVoteThreshold = function (race) {
 			2,
 			_charliebevis$efficiencygap$Race$totalVotes(race)));
 };
-var _charliebevis$efficiencygap$Race$wastedPartyVotes = F2(
-	function (partyName, race) {
-		return 0;
-	});
-var _charliebevis$efficiencygap$Race$goodPartyVotes = F2(
-	function (partyName, race) {
-		return 0;
-	});
 var _charliebevis$efficiencygap$Race$PartyWastedVote = F3(
 	function (a, b, c) {
 		return {partyName: a, good: b, wasted: c};
@@ -18446,35 +18431,63 @@ var _charliebevis$efficiencygap$Race$Race = function (a) {
 };
 var _charliebevis$efficiencygap$Race$fromList = _charliebevis$efficiencygap$Race$Race;
 var _charliebevis$efficiencygap$Race$setPartyVotes = F3(
-	function (partyName, votes, _p18) {
-		var _p19 = _p18;
+	function (partyName, votes, _p14) {
+		var _p15 = _p14;
 		return _charliebevis$efficiencygap$Race$Race(
 			A2(
 				_elm_lang$core$List$map,
-				function (_p20) {
-					var _p21 = _p20;
-					var _p22 = _p21._0;
-					return _elm_lang$core$Native_Utils.eq(_p22, partyName) ? {ctor: '_Tuple2', _0: _p22, _1: votes} : {ctor: '_Tuple2', _0: _p22, _1: _p21._1};
+				function (_p16) {
+					var _p17 = _p16;
+					var _p18 = _p17._0;
+					return _elm_lang$core$Native_Utils.eq(_p18, partyName) ? {ctor: '_Tuple2', _0: _p18, _1: votes} : {ctor: '_Tuple2', _0: _p18, _1: _p17._1};
 				},
-				_p19._0));
+				_p15._0));
 	});
-var _charliebevis$efficiencygap$Race$calculateWastedVotes = function (_p23) {
-	var _p24 = _p23;
-	var _p31 = _p24._0;
+var _charliebevis$efficiencygap$Race$calculateWastedVotes = function (_p19) {
+	var _p20 = _p19;
+	var _p27 = _p20._0;
 	var threshold = _charliebevis$efficiencygap$Race$wastedVoteThreshold(
-		_charliebevis$efficiencygap$Race$Race(_p31));
-	var winnerVotes = function (_p25) {
+		_charliebevis$efficiencygap$Race$Race(_p27));
+	var winnerVotes = function (_p21) {
+		var _p22 = _p21;
+		var _p24 = _p22._1;
+		var _p23 = _p22._0;
+		return (_elm_lang$core$Native_Utils.cmp(_p24, threshold) > 0) ? {partyName: _p23, good: threshold, wasted: _p24 - threshold} : {partyName: _p23, good: _p24, wasted: 0};
+	};
+	var loserVotes = function (_p25) {
 		var _p26 = _p25;
-		var _p28 = _p26._1;
-		var _p27 = _p26._0;
-		return (_elm_lang$core$Native_Utils.cmp(_p28, threshold) > 0) ? {partyName: _p27, good: threshold, wasted: _p28 - threshold} : {partyName: _p27, good: _p28, wasted: 0};
+		return {partyName: _p26._0, good: 0, wasted: _p26._1};
 	};
-	var loserVotes = function (_p29) {
-		var _p30 = _p29;
-		return {partyName: _p30._0, good: 0, wasted: _p30._1};
-	};
-	return A3(_charliebevis$efficiencygap$Race$applyToWinner, winnerVotes, loserVotes, _p31);
+	return A3(_charliebevis$efficiencygap$Race$applyToWinner, winnerVotes, loserVotes, _p27);
 };
+var _charliebevis$efficiencygap$Race$partyByName = F2(
+	function (partyName, race) {
+		return _elm_lang$core$List$head(
+			A2(
+				_elm_lang$core$List$filterMap,
+				function (party) {
+					return _elm_lang$core$Native_Utils.eq(party.partyName, partyName) ? _elm_lang$core$Maybe$Just(party) : _elm_lang$core$Maybe$Nothing;
+				},
+				_charliebevis$efficiencygap$Race$calculateWastedVotes(race)));
+	});
+var _charliebevis$efficiencygap$Race$goodPartyVotes = F2(
+	function (partyName, race) {
+		var _p28 = A2(_charliebevis$efficiencygap$Race$partyByName, partyName, race);
+		if (_p28.ctor === 'Nothing') {
+			return 0;
+		} else {
+			return _p28._0.good;
+		}
+	});
+var _charliebevis$efficiencygap$Race$wastedPartyVotes = F2(
+	function (partyName, race) {
+		var _p29 = A2(_charliebevis$efficiencygap$Race$partyByName, partyName, race);
+		if (_p29.ctor === 'Nothing') {
+			return 0;
+		} else {
+			return _p29._0.wasted;
+		}
+	});
 var _charliebevis$efficiencygap$Main$allPairs = function (list) {
 	var allPairs_ = F2(
 		function (parties, acc) {
@@ -18500,11 +18513,11 @@ var _charliebevis$efficiencygap$Main$allPairs = function (list) {
 		{ctor: '[]'},
 		_elm_community$list_extra$List_Extra$tails(list));
 };
-var _charliebevis$efficiencygap$Main$updateValue = F2(
-	function (item, dict) {
+var _charliebevis$efficiencygap$Main$updateParty = F3(
+	function (race, name, dict) {
 		return A3(
 			_elm_lang$core$Dict$update,
-			item.partyName,
+			name,
 			function (existing) {
 				var _p1 = existing;
 				if (_p1.ctor === 'Just') {
@@ -18512,53 +18525,60 @@ var _charliebevis$efficiencygap$Main$updateValue = F2(
 					return _elm_lang$core$Maybe$Just(
 						_elm_lang$core$Native_Utils.update(
 							_p2,
-							{good: _p2.good + item.good, wasted: _p2.wasted + item.wasted}));
+							{
+								good: _p2.good + A2(_charliebevis$efficiencygap$Race$goodPartyVotes, name, race),
+								wasted: _p2.wasted + A2(_charliebevis$efficiencygap$Race$wastedPartyVotes, name, race)
+							}));
 				} else {
 					return _elm_lang$core$Maybe$Just(
-						{good: item.good, wasted: item.wasted});
+						{
+							good: A2(_charliebevis$efficiencygap$Race$goodPartyVotes, name, race),
+							wasted: A2(_charliebevis$efficiencygap$Race$wastedPartyVotes, name, race)
+						});
 				}
 			},
 			dict);
 	});
+var _charliebevis$efficiencygap$Main$sumRaces = F2(
+	function (race, dictionary) {
+		return A3(
+			_elm_lang$core$List$foldl,
+			_charliebevis$efficiencygap$Main$updateParty(race),
+			dictionary,
+			_charliebevis$efficiencygap$Race$partyNames(race));
+	});
 var _charliebevis$efficiencygap$Main$textCentered = _rtfeldman$elm_css$Css$textAlign(_rtfeldman$elm_css$Css$center);
-var _charliebevis$efficiencygap$Main$snd = function (_p3) {
-	var _p4 = _p3;
-	return _p4._1;
-};
-var _charliebevis$efficiencygap$Main$presentVotes = function (_p5) {
+var _charliebevis$efficiencygap$Main$presentVotes = function (race) {
 	return A2(
 		_elm_lang$core$List$map,
-		function (_p6) {
-			var _p7 = _p6;
+		function (name) {
 			return {
 				ctor: '::',
-				_0: _elm_lang$core$Basics$toFloat(_p7.good),
+				_0: _elm_lang$core$Basics$toFloat(
+					A2(_charliebevis$efficiencygap$Race$goodPartyVotes, name, race)),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$core$Basics$toFloat(_p7.wasted),
+					_0: _elm_lang$core$Basics$toFloat(
+						A2(_charliebevis$efficiencygap$Race$wastedPartyVotes, name, race)),
 					_1: {ctor: '[]'}
 				}
 			};
 		},
-		_charliebevis$efficiencygap$Race$calculateWastedVotes(_p5));
-};
-var _charliebevis$efficiencygap$Main$fst = function (_p8) {
-	var _p9 = _p8;
-	return _p9._0;
+		_charliebevis$efficiencygap$Race$partyNames(race));
 };
 var _charliebevis$efficiencygap$Main$updateEditedParties = F2(
 	function (i, model) {
 		var setToDraftData = F2(
 			function (race, maybeDraftData) {
-				var _p10 = maybeDraftData;
-				if (_p10.ctor === 'Nothing') {
+				var _p3 = maybeDraftData;
+				if (_p3.ctor === 'Nothing') {
 					return race;
 				} else {
-					return _charliebevis$efficiencygap$Race$fromList(_p10._0);
+					return _charliebevis$efficiencygap$Race$fromList(_p3._0);
 				}
 			});
-		var _p11 = A2(_elm_lang$core$Array$get, i, model.voteData);
-		if (_p11.ctor === 'Nothing') {
+		var _p4 = A2(_elm_lang$core$Array$get, i, model.voteData);
+		if (_p4.ctor === 'Nothing') {
 			return model.voteData;
 		} else {
 			return A3(
@@ -18566,15 +18586,15 @@ var _charliebevis$efficiencygap$Main$updateEditedParties = F2(
 				i,
 				A2(
 					setToDraftData,
-					_p11._0,
+					_p4._0,
 					A2(_elm_lang$core$Array$get, i, model.draftVoteData)),
 				model.voteData);
 		}
 	});
 var _charliebevis$efficiencygap$Main$updatePartyInRace = F3(
 	function (raceIndex, partyVote, allRaces) {
-		var _p12 = A2(_elm_lang$core$Array$get, raceIndex, allRaces);
-		if (_p12.ctor === 'Nothing') {
+		var _p5 = A2(_elm_lang$core$Array$get, raceIndex, allRaces);
+		if (_p5.ctor === 'Nothing') {
 			return allRaces;
 		} else {
 			return A3(
@@ -18585,36 +18605,36 @@ var _charliebevis$efficiencygap$Main$updatePartyInRace = F3(
 					_0: partyVote,
 					_1: A2(
 						_elm_lang$core$List$filter,
-						function (_p13) {
-							var _p14 = _p13;
+						function (_p6) {
+							var _p7 = _p6;
 							return !_elm_lang$core$Native_Utils.eq(
-								_p14._0,
-								_charliebevis$efficiencygap$Main$fst(partyVote));
+								_p7._0,
+								_elm_lang$core$Tuple$first(partyVote));
 						},
-						_p12._0)
+						_p5._0)
 				},
 				allRaces);
 		}
 	});
 var _charliebevis$efficiencygap$Main$update = F2(
 	function (msg, model) {
-		var _p15 = msg;
-		switch (_p15.ctor) {
+		var _p8 = msg;
+		switch (_p8.ctor) {
 			case 'Hover':
 				return _elm_lang$core$Native_Utils.update(
 					model,
-					{hovering: _p15._0});
+					{hovering: _p8._0});
 			case 'NewVotes':
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						voteData: A2(_charliebevis$efficiencygap$Main$updateEditedParties, _p15._0, model)
+						voteData: A2(_charliebevis$efficiencygap$Main$updateEditedParties, _p8._0, model)
 					});
 			default:
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						draftVoteData: A3(_charliebevis$efficiencygap$Main$updatePartyInRace, _p15._0, _p15._1, model.draftVoteData)
+						draftVoteData: A3(_charliebevis$efficiencygap$Main$updatePartyInRace, _p8._0, _p8._1, model.draftVoteData)
 					});
 		}
 	});
@@ -18629,7 +18649,11 @@ var _charliebevis$efficiencygap$Main$initialModel = function () {
 					_1: {
 						ctor: '::',
 						_0: {ctor: '_Tuple2', _0: 'Party B', _1: 85},
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'Party C', _1: 8},
+							_1: {ctor: '[]'}
+						}
 					}
 				}),
 			_1: {
@@ -18641,7 +18665,11 @@ var _charliebevis$efficiencygap$Main$initialModel = function () {
 						_1: {
 							ctor: '::',
 							_0: {ctor: '_Tuple2', _0: 'Party B', _1: 47},
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'Party C', _1: 4},
+								_1: {ctor: '[]'}
+							}
 						}
 					}),
 				_1: {
@@ -18653,7 +18681,11 @@ var _charliebevis$efficiencygap$Main$initialModel = function () {
 							_1: {
 								ctor: '::',
 								_0: {ctor: '_Tuple2', _0: 'Party B', _1: 47},
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'Party C', _1: 4},
+									_1: {ctor: '[]'}
+								}
 							}
 						}),
 					_1: {
@@ -18665,7 +18697,11 @@ var _charliebevis$efficiencygap$Main$initialModel = function () {
 								_1: {
 									ctor: '::',
 									_0: {ctor: '_Tuple2', _0: 'Party B', _1: 47},
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: 'Party C', _1: 4},
+										_1: {ctor: '[]'}
+									}
 								}
 							}),
 						_1: {
@@ -18677,7 +18713,11 @@ var _charliebevis$efficiencygap$Main$initialModel = function () {
 									_1: {
 										ctor: '::',
 										_0: {ctor: '_Tuple2', _0: 'Party B', _1: 47},
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'Party C', _1: 4},
+											_1: {ctor: '[]'}
+										}
 									}
 								}),
 							_1: {ctor: '[]'}
@@ -18753,9 +18793,9 @@ var _charliebevis$efficiencygap$Main$initialModel = function () {
 			})
 	};
 }();
-var _charliebevis$efficiencygap$Main$styles = function (_p16) {
+var _charliebevis$efficiencygap$Main$styles = function (_p9) {
 	return _elm_lang$html$Html_Attributes$style(
-		_rtfeldman$elm_css$Css$asPairs(_p16));
+		_rtfeldman$elm_css$Css$asPairs(_p9));
 };
 var _charliebevis$efficiencygap$Main$showFraction = F2(
 	function (numerator, denominator) {
@@ -18827,23 +18867,23 @@ var _charliebevis$efficiencygap$Main$showFraction = F2(
 			});
 	});
 var _charliebevis$efficiencygap$Main$presentGaps = function (model) {
-	var totalVoteMap = A3(
-		_elm_lang$core$List$foldl,
-		_charliebevis$efficiencygap$Main$updateValue,
-		_elm_lang$core$Dict$empty,
+	var totalVotesAllRaces = _elm_lang$core$List$sum(
+		A2(
+			_elm_lang$core$List$map,
+			_charliebevis$efficiencygap$Race$totalVotes,
+			_elm_lang$core$Array$toList(model.voteData)));
+	var partyTotalsAllRaces = _elm_lang$core$Dict$toList(
+		A3(
+			_elm_lang$core$List$foldl,
+			_charliebevis$efficiencygap$Main$sumRaces,
+			_elm_lang$core$Dict$empty,
+			_elm_lang$core$Array$toList(model.voteData)));
+	var allPartyNames = _elm_community$list_extra$List_Extra$unique(
 		_elm_lang$core$List$concat(
 			A2(
 				_elm_lang$core$List$map,
-				_charliebevis$efficiencygap$Race$calculateWastedVotes,
+				_charliebevis$efficiencygap$Race$partyNames,
 				_elm_lang$core$Array$toList(model.voteData))));
-	var totalVotes = _elm_lang$core$List$sum(
-		A2(
-			_elm_lang$core$List$map,
-			function (_p17) {
-				var _p18 = _p17;
-				return _p18.good + _p18.wasted;
-			},
-			_elm_lang$core$Dict$values(totalVoteMap)));
 	var to2decimalPercent = function ($float) {
 		return A3(
 			_elm_lang$core$Basics$flip,
@@ -18855,23 +18895,23 @@ var _charliebevis$efficiencygap$Main$presentGaps = function (model) {
 			A2(_myrho$elm_round$Round$round, 2, $float * 100));
 	};
 	var presentRow = F2(
-		function (total, _p19) {
+		function (total, _p10) {
 			presentRow:
 			while (true) {
-				var _p20 = _p19;
-				var _p25 = _p20._1._1;
-				var _p24 = _p20._1._0;
-				var _p23 = _p20._0._1;
-				var _p22 = _p20._0._0;
-				if (_elm_lang$core$Native_Utils.cmp(_p23.wasted, _p25.wasted) > 0) {
-					var _v12 = total,
-						_v13 = {
+				var _p11 = _p10;
+				var _p16 = _p11._1._1;
+				var _p15 = _p11._1._0;
+				var _p14 = _p11._0._1;
+				var _p13 = _p11._0._0;
+				if (_elm_lang$core$Native_Utils.cmp(_p14.wasted, _p16.wasted) > 0) {
+					var _v8 = total,
+						_v9 = {
 						ctor: '_Tuple2',
-						_0: {ctor: '_Tuple2', _0: _p24, _1: _p25},
-						_1: {ctor: '_Tuple2', _0: _p22, _1: _p23}
+						_0: {ctor: '_Tuple2', _0: _p15, _1: _p16},
+						_1: {ctor: '_Tuple2', _0: _p13, _1: _p14}
 					};
-					total = _v12;
-					_p19 = _v13;
+					total = _v8;
+					_p10 = _v9;
 					continue presentRow;
 				} else {
 					return A2(
@@ -18887,8 +18927,8 @@ var _charliebevis$efficiencygap$Main$presentGaps = function (model) {
 									_0: _elm_lang$html$Html$text(
 										A2(
 											_elm_lang$core$Basics_ops['++'],
-											_p22,
-											A2(_elm_lang$core$Basics_ops['++'], ' / ', _p24))),
+											_p13,
+											A2(_elm_lang$core$Basics_ops['++'], ' / ', _p15))),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -18917,7 +18957,17 @@ var _charliebevis$efficiencygap$Main$presentGaps = function (model) {
 										ctor: '::',
 										_0: A2(
 											_charliebevis$efficiencygap$Main$showFraction,
-											_elm_lang$html$Html$text('wastedB - wastedA'),
+											_elm_lang$html$Html$text(
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													'(wasted ',
+													A2(
+														_elm_lang$core$Basics_ops['++'],
+														_p13,
+														A2(
+															_elm_lang$core$Basics_ops['++'],
+															') - (wasted ',
+															A2(_elm_lang$core$Basics_ops['++'], _p15, ')'))))),
 											_elm_lang$html$Html$text('total')),
 										_1: {
 											ctor: '::',
@@ -18939,13 +18989,13 @@ var _charliebevis$efficiencygap$Main$presentGaps = function (model) {
 															'(',
 															A2(
 																_elm_lang$core$Basics_ops['++'],
-																_elm_lang$core$Basics$toString(_p25.wasted),
+																_elm_lang$core$Basics$toString(_p16.wasted),
 																A2(
 																	_elm_lang$core$Basics_ops['++'],
 																	'-',
 																	A2(
 																		_elm_lang$core$Basics_ops['++'],
-																		_elm_lang$core$Basics$toString(_p23.wasted),
+																		_elm_lang$core$Basics$toString(_p14.wasted),
 																		')'))))),
 													_elm_lang$html$Html$text(
 														_elm_lang$core$Basics$toString(total))),
@@ -18966,11 +19016,11 @@ var _charliebevis$efficiencygap$Main$presentGaps = function (model) {
 															{ctor: '[]'},
 															{
 																ctor: '::',
-																_0: function (_p21) {
+																_0: function (_p12) {
 																	return _elm_lang$html$Html$text(
-																		to2decimalPercent(_p21));
+																		to2decimalPercent(_p12));
 																}(
-																	_elm_lang$core$Basics$toFloat(_p25.wasted - _p23.wasted) / _elm_lang$core$Basics$toFloat(total)),
+																	_elm_lang$core$Basics$toFloat(_p16.wasted - _p14.wasted) / _elm_lang$core$Basics$toFloat(total)),
 																_1: {ctor: '[]'}
 															}),
 														_1: {ctor: '[]'}
@@ -18987,17 +19037,12 @@ var _charliebevis$efficiencygap$Main$presentGaps = function (model) {
 		});
 	return A2(
 		_elm_lang$core$List$map,
-		presentRow(totalVotes),
-		_charliebevis$efficiencygap$Main$allPairs(
-			_elm_lang$core$Dict$toList(totalVoteMap)));
+		presentRow(totalVotesAllRaces),
+		_charliebevis$efficiencygap$Main$allPairs(partyTotalsAllRaces));
 };
 var _charliebevis$efficiencygap$Main$Model = F3(
 	function (a, b, c) {
 		return {hovering: a, voteData: b, draftVoteData: c};
-	});
-var _charliebevis$efficiencygap$Main$PartyWastedVote = F3(
-	function (a, b, c) {
-		return {partyName: a, good: b, wasted: c};
 	});
 var _charliebevis$efficiencygap$Main$DraftVotes = F2(
 	function (a, b) {
@@ -19007,11 +19052,11 @@ var _charliebevis$efficiencygap$Main$NewVotes = function (a) {
 	return {ctor: 'NewVotes', _0: a};
 };
 var _charliebevis$efficiencygap$Main$voteControls = F2(
-	function (raceIndex, votes) {
+	function (raceIndex, race) {
 		var buildDraftVotes = F3(
 			function (raceIndex, partyName, newVoteString) {
-				var _p26 = _elm_lang$core$String$toInt(newVoteString);
-				if (_p26.ctor === 'Err') {
+				var _p17 = _elm_lang$core$String$toInt(newVoteString);
+				if (_p17.ctor === 'Err') {
 					return A2(
 						_charliebevis$efficiencygap$Main$DraftVotes,
 						raceIndex,
@@ -19020,18 +19065,14 @@ var _charliebevis$efficiencygap$Main$voteControls = F2(
 					return A2(
 						_charliebevis$efficiencygap$Main$DraftVotes,
 						raceIndex,
-						{ctor: '_Tuple2', _0: partyName, _1: _p26._0});
+						{ctor: '_Tuple2', _0: partyName, _1: _p17._0});
 				}
 			});
 		var tableRows = A2(
 			_elm_lang$core$Basics_ops['++'],
 			A2(
 				_elm_lang$core$List$map,
-				function (_p27) {
-					var _p28 = _p27;
-					var _p33 = _p28.wasted;
-					var _p32 = _p28.partyName;
-					var _p31 = _p28.good;
+				function (partyName) {
 					return A2(
 						_elm_lang$html$Html$tr,
 						{ctor: '[]'},
@@ -19042,7 +19083,7 @@ var _charliebevis$efficiencygap$Main$voteControls = F2(
 								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text(_p32),
+									_0: _elm_lang$html$Html$text(partyName),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -19060,7 +19101,8 @@ var _charliebevis$efficiencygap$Main$voteControls = F2(
 												_1: {
 													ctor: '::',
 													_0: _elm_lang$html$Html_Attributes$placeholder(
-														_elm_lang$core$Basics$toString(_p31 + _p33)),
+														_elm_lang$core$Basics$toString(
+															A2(_charliebevis$efficiencygap$Race$goodPartyVotes, partyName, race) + A2(_charliebevis$efficiencygap$Race$wastedPartyVotes, partyName, race))),
 													_1: {
 														ctor: '::',
 														_0: _charliebevis$efficiencygap$Main$styles(
@@ -19073,7 +19115,7 @@ var _charliebevis$efficiencygap$Main$voteControls = F2(
 														_1: {
 															ctor: '::',
 															_0: _elm_lang$html$Html_Events$onInput(
-																A2(buildDraftVotes, raceIndex, _p32)),
+																A2(buildDraftVotes, raceIndex, partyName)),
 															_1: {ctor: '[]'}
 														}
 													}
@@ -19089,10 +19131,11 @@ var _charliebevis$efficiencygap$Main$voteControls = F2(
 										{ctor: '[]'},
 										{
 											ctor: '::',
-											_0: function (_p29) {
+											_0: function (_p18) {
 												return _elm_lang$html$Html$text(
-													_elm_lang$core$Basics$toString(_p29));
-											}(_p31),
+													_elm_lang$core$Basics$toString(_p18));
+											}(
+												A2(_charliebevis$efficiencygap$Race$goodPartyVotes, partyName, race)),
 											_1: {ctor: '[]'}
 										}),
 									_1: {
@@ -19102,10 +19145,11 @@ var _charliebevis$efficiencygap$Main$voteControls = F2(
 											{ctor: '[]'},
 											{
 												ctor: '::',
-												_0: function (_p30) {
+												_0: function (_p19) {
 													return _elm_lang$html$Html$text(
-														_elm_lang$core$Basics$toString(_p30));
-												}(_p33),
+														_elm_lang$core$Basics$toString(_p19));
+												}(
+													A2(_charliebevis$efficiencygap$Race$wastedPartyVotes, partyName, race)),
 												_1: {ctor: '[]'}
 											}),
 										_1: {ctor: '[]'}
@@ -19114,7 +19158,7 @@ var _charliebevis$efficiencygap$Main$voteControls = F2(
 							}
 						});
 				},
-				_charliebevis$efficiencygap$Race$calculateWastedVotes(votes)),
+				_charliebevis$efficiencygap$Race$partyNames(race)),
 			{
 				ctor: '::',
 				_0: A2(
@@ -19238,20 +19282,20 @@ var _charliebevis$efficiencygap$Main$voteControls = F2(
 var _charliebevis$efficiencygap$Main$Hover = function (a) {
 	return {ctor: 'Hover', _0: a};
 };
-var _charliebevis$efficiencygap$Main$viewRace = function (_p34) {
-	var _p35 = _p34;
-	var _p36 = _p35._1;
+var _charliebevis$efficiencygap$Main$viewRace = function (_p20) {
+	var _p21 = _p20;
+	var _p22 = _p21._1;
 	var unstackedGroup = _terezka$elm_plot$Plot$stackedBars(
 		A2(
 			_elm_lang$core$List$map2,
 			_terezka$elm_plot$Plot$hintGroup(_elm_lang$core$Maybe$Nothing),
-			_charliebevis$efficiencygap$Race$partyNames(_p36)));
+			_charliebevis$efficiencygap$Race$partyNames(_p22)));
 	var wastedThreshold = A2(
 		_elm_lang$core$List$map,
 		_elm_lang$core$Basics$toFloat,
 		{
 			ctor: '::',
-			_0: _charliebevis$efficiencygap$Race$wastedVoteThreshold(_p36),
+			_0: _charliebevis$efficiencygap$Race$wastedVoteThreshold(_p22),
 			_1: {ctor: '[]'}
 		});
 	var vertAxis = _terezka$elm_plot$Plot$customAxis(
@@ -19317,10 +19361,10 @@ var _charliebevis$efficiencygap$Main$viewRace = function (_p34) {
 				_elm_lang$core$Native_Utils.update(
 					unstackedGroup,
 					{areBarsStacked: true, axis: vertAxis}),
-				_charliebevis$efficiencygap$Main$presentVotes(_p36)),
+				_charliebevis$efficiencygap$Main$presentVotes(_p22)),
 			_1: {
 				ctor: '::',
-				_0: A2(_charliebevis$efficiencygap$Main$voteControls, _p35._0, _p36),
+				_0: A2(_charliebevis$efficiencygap$Main$voteControls, _p21._0, _p22),
 				_1: {ctor: '[]'}
 			}
 		});

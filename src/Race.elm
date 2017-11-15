@@ -62,7 +62,6 @@ type alias PartyWastedVote =
     , wasted : Int
     }
 
---need this for aggregating stats across all races...
 calculateWastedVotes : Race -> List PartyWastedVote
 calculateWastedVotes (Race votes) =
     let loserVotes (name,votes) = {partyName=name,good=0,wasted=votes}

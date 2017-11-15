@@ -184,13 +184,13 @@ voteControls raceIndex race =
 
 
 presentVotes : Race -> List (List Float)
-presentVotes = calculateWastedVotes >> (List.map (\{partyName,good,wasted}-> [toFloat good, toFloat wasted]))
-
-type alias PartyWastedVote =
-    { partyName : String
-    , good : Int
-    , wasted : Int
-    }
+presentVotes race =
+               partyNames race
+                   |> List.map (\name->
+                                     [toFloat <| goodPartyVotes name race
+                                     , toFloat <| wastedPartyVotes name race
+                                     ]
+                                )
 
 main : Program Never Model Msg
 main =
